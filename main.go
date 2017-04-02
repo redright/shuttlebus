@@ -3,8 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/redright/shuttlebus/db"
-	"github.com/redright/shuttlebus/domain"
+	"github.com/redright/shuttlebus/passenger"
 )
 
 func main() {
@@ -16,24 +15,22 @@ func main() {
 		fmt.Scanf("%d\n", &cmd)
 		switch cmd {
 		case 1:
-			var rows = db.Query("select * from passenger")
-			fmt.Println(rows)
-			for rows.Next() {
-				var p = new(domain.Passenger)
-				rows.Scan(&p.ID, &p.Name)
-				fmt.Println(p)
+			r := *passenger.GetPassegers()
+			for i := 0; i < len(r); i++ {
+				fmt.Println(r[i])
 			}
 		case 2:
-			var pName string
-			fmt.Print("New Passenger Name: ")
-			fmt.Scanf("%s\n", &pName)
-			r, e := db.Execute("insert into passenger (name) VALUES (?)", pName)
-			if e != nil {
-				fmt.Println(e)
-			}
-			fmt.Println(r)
+			var newPassenger passenger.Passenger
+			fmt.Println("New Passenger")
+			fmt.Print(" Name: ")
+			fmt.Scanf("%s\n", &newPassenger.Name)
+			fmt.Print(" Last Name: ")
+			fmt.Scanf("%s\n", &newPassenger.LastName)
+			fmt.Print(" Phone Number: ")
+			fmt.Scanf("%s\n", &newPassenger.PhoneNumber)
+			passenger.Create(&newPassenger)
+			fmt.Println(newPassenger)
 		}
-
 	}
 
 }

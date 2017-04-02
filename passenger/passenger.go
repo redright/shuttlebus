@@ -1,9 +1,8 @@
-package domain
+package passenger
 
 type Passenger struct {
-	ID          int
+	ID          int64
 	Name        string
 	LastName    string
 	PhoneNumber string
-	location    Location
 }

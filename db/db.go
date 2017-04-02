@@ -16,10 +16,19 @@ func Query(query string, args ...interface{}) *sql.Rows {
 	return r
 }
 
-func Execute(sql string, args ...interface{}) (sql.Result, error) {
+func ExecuteWithError(sql string, args ...interface{}) (sql.Result, error) {
 	con := getConnection()
 	r, e := con.Exec(sql, args...)
 	return r, e
+}
+
+func Execute(sql string, args ...interface{}) sql.Result {
+	con := getConnection()
+	r, e := con.Exec(sql, args...)
+	if e != nil {
+		panic(e.Error())
+	}
+	return r
 }
 
 func getConnection() *sql.DB {
