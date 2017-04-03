@@ -1,0 +1,31 @@
+package APIHost
+
+import (
+	"log"
+	"net/http"
+
+	"github.com/gorilla/mux"
+)
+
+func Setup() {
+	router := newRouter()
+	log.Println("Host Running...")
+	log.Fatal(http.ListenAndServe(":8080", router))
+}
+
+func newRouter() *mux.Router {
+	router := mux.NewRouter().StrictSlash(true)
+	for _, route := range routes {
+		var handler http.Handler
+		handler = route.HandlerFunc
+		handler = Logger(handler, route.Name)
+		router.
+			Methods(route.Method).
+			Path(route.Pattern).
+			Name(route.Name).
+			Handler(handler)
+
+	}
+
+	return router
+}

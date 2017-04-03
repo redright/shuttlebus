@@ -1,4 +1,4 @@
-package passenger
+package domain
 
 type Passenger struct {
 	ID          int64
