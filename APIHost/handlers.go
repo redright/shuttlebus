@@ -35,7 +35,10 @@ func Operation(w http.ResponseWriter, r *http.Request) {
 	services := appServices.Services{}
 	servicesV := reflect.ValueOf(&services).Elem()
 	serviceT, _ := servicesV.Type().FieldByName(operation.ServiceName)
-
+	if serviceT.Type == nil {
+		w.WriteHeader(404) // unprocessable entity
+		return
+	}
 	method, _ := serviceT.Type.MethodByName(operation.MethodName)
 	methodT := method.Type
 	parameterCount := methodT.NumIn() - 1
@@ -69,9 +72,18 @@ func Operation(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	if len(result) > 0 {
-		response.Result = result[0].Interface()
+		errorInterface := reflect.TypeOf((*error)(nil)).Elem()
+		if len(result) > 0 && !result[0].Type().Implements(errorInterface) {
+			response.Result = result[0].Interface()
+		} else {
+			response.Error = result[0].Interface().(error).Error()
+		}
+
 		if len(result)-1 > 0 {
-			response.Error = result[len(result)-1].Interface().(error).Error()
+			err := result[len(result)-1].Interface()
+			if err != nil {
+				response.Error = err.(error).Error()
+			}
 		}
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

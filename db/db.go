@@ -3,7 +3,10 @@ package db
 import (
 	"database/sql"
 
+	"fmt"
+
 	_ "github.com/go-sql-driver/mysql"
+	uuid "github.com/satori/go.uuid"
 )
 
 func Query(query string, args ...interface{}) *sql.Rows {
@@ -32,7 +35,7 @@ func Execute(sql string, args ...interface{}) sql.Result {
 }
 
 func getConnection() *sql.DB {
-	con, err := sql.Open("mysql", "root:123456@/shuttlebus")
+	con, err := sql.Open("mysql", "root:123456@/transportation")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -41,4 +44,12 @@ func getConnection() *sql.DB {
 		panic(err.Error())
 	}
 	return con
+}
+
+func GenerateID() string {
+	return uuid.NewV4().String()
+}
+
+func deleteRow(tableName, id string) {
+	Execute(fmt.Sprintf("DELETE FROM %s WHERE ID = ?", tableName), id)
 }
