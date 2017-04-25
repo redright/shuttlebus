@@ -1,5 +1,6 @@
 package appServices
 
 type Services struct {
-	Client *ClientService
+	Client    *ClientService
+	Passenger *PassengerService
 }

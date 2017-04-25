@@ -2,7 +2,9 @@ package APIHost
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"reflect"
 
@@ -10,10 +12,11 @@ import (
 	"io/ioutil"
 
 	"github.com/redright/shuttlebus/appServices"
+	"github.com/redright/shuttlebus/common"
 )
 
 func Operation(w http.ResponseWriter, r *http.Request) {
-
+	defer operationErrorHandler(w, r)
 	var operation OperationRequest
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
@@ -47,7 +50,11 @@ func Operation(w http.ResponseWriter, r *http.Request) {
 		panic("ParameterCountMissmatch")
 	}
 	refParams := make([]reflect.Value, parameterCount+1)
-	refParams[0] = reflect.New(serviceT.Type.Elem())
+	var serviceInstance = reflect.New(serviceT.Type.Elem())
+	ctx := appServices.ServiceContext{PassengerID: "123123"}
+	var field = serviceInstance.Elem().FieldByName("Context")
+	field.Set(reflect.ValueOf(&ctx))
+	refParams[0] = serviceInstance
 	for i := 1; i < methodT.NumIn(); i++ {
 		paramType := methodT.In(i)
 		t := reflect.New(paramType)
@@ -64,6 +71,9 @@ func Operation(w http.ResponseWriter, r *http.Request) {
 	}
 	// serviceInitMethod, _ := serviceT.Type.MethodByName("Init")
 	// serviceInitMethod.Func.Call([]reflect.Value{refParams[0]})
+
+	//TODO: CreateContext
+
 	result := method.Func.Call(refParams)
 
 	response := OperationResponse{}
@@ -92,4 +102,34 @@ func Operation(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		panic(err)
 	}
+}
+func operationErrorHandler(w http.ResponseWriter, req *http.Request) {
+	r := recover()
+	if r == nil {
+		return
+	}
+	var err error
+	switch t := r.(type) {
+	case string:
+		err = errors.New(t)
+	case error:
+		err = t
+	case common.BusinessError:
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusOK)
+		response := OperationResponse{}
+		response.Error = t.Error()
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			log.Fatal(err)
+			panic(err)
+		}
+		return
+	default:
+		err = errors.New("Unknown error")
+	}
+	log.Println(err)
+	//sendMeMail(err)
+	//	log.Fatal(err.Error())
+	http.Error(w, "Unexpected error occured please contact your system administrator", http.StatusInternalServerError)
+	// http.Error(w, err.Error(), http.StatusInternalServerError)
 }

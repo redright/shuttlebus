@@ -1,5 +1,9 @@
 package domain
 
+import (
+	"time"
+)
+
 type Shuttle struct {
 	ID               string
 	CompanyID        string
@@ -13,4 +17,16 @@ type Shuttle struct {
 	StartPoint Point
 	EndPoint   Point
 	// Passengers []ClientPassenger
+}
+
+type PassengerLocation struct {
+	ShuttleID   string
+	PassengerID string
+	Location    Point
+	SharingTime time.Time
+}
+type ShuttleLocation struct {
+	ShuttleID   string
+	Location    Point
+	SharingTime time.Time
 }

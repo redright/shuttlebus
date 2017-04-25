@@ -7,15 +7,16 @@ import (
 )
 
 type ClientService struct {
+	BaseService
 	repo db.ClientRepo
 }
 
-func (s *ClientService) CreateClient(c domain.Client) (string, error) {
+func (s *ClientService) CreateClient(c domain.Client) string {
 	if len(c.Name) == 0 {
-		return "", &common.BusinessError{Code: "InvalidClientName"}
+		panic(common.BusinessError{Code: "InvalidClientName"})
 	}
 	s.repo.CreateClient(&c)
-	return "Başarıyla Oluşturuldu", nil
+	return "Başarıyla Oluşturuldu"
 }
 
 func (s *ClientService) AddPassenger(p domain.ClientPassenger) {
