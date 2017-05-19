@@ -51,9 +51,6 @@ func Operation(w http.ResponseWriter, r *http.Request) {
 	}
 	refParams := make([]reflect.Value, parameterCount+1)
 	var serviceInstance = reflect.New(serviceT.Type.Elem())
-	ctx := appServices.ServiceContext{PassengerID: "123123"}
-	var field = serviceInstance.Elem().FieldByName("Context")
-	field.Set(reflect.ValueOf(&ctx))
 	refParams[0] = serviceInstance
 	for i := 1; i < methodT.NumIn(); i++ {
 		paramType := methodT.In(i)
@@ -69,11 +66,13 @@ func Operation(w http.ResponseWriter, r *http.Request) {
 		}
 		refParams[i] = reflect.ValueOf(t.Elem().Interface())
 	}
+
+	ctx := appServices.ServiceContext{PassengerID: operation.PassengerID}
+	var field = serviceInstance.Elem().FieldByName("Context")
+	field.Set(reflect.ValueOf(&ctx))
+
 	// serviceInitMethod, _ := serviceT.Type.MethodByName("Init")
 	// serviceInitMethod.Func.Call([]reflect.Value{refParams[0]})
-
-	//TODO: CreateContext
-
 	result := method.Func.Call(refParams)
 
 	response := OperationResponse{}

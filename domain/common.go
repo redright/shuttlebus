@@ -15,7 +15,7 @@ type Driver struct {
 type Vehicle struct {
 	ID        string
 	CompanyID string
-	PlateNo   string
+	PlateNo   string `json:"plateNo"`
 	Capacity  int
 	BrandCode string
 	ModelCode string
@@ -23,6 +23,6 @@ type Vehicle struct {
 }
 
 type Point struct {
-	Latitude  float32
-	Longitute float32
+	Latitude  float32 `json:"latitude"`
+	Longitute float32 `json:"longitute"`
 }

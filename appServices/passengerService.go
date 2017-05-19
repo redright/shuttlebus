@@ -12,6 +12,7 @@ type PassengerService struct {
 }
 
 func (s *PassengerService) ShareLocationToShuttle(shuttleID string, location domain.Point) {
+	//TODO: check shuttleid
 	shuttleRepo := db.ShuttleRepo{}
 	shuttleRepo.AddPassengerLocation(domain.PassengerLocation{
 		ShuttleID:   shuttleID,

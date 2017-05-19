@@ -5,17 +5,19 @@ import (
 )
 
 type Shuttle struct {
-	ID               string
-	CompanyID        string
-	ClientID         string
-	CompanyVehicleID string
-	CompanyDriverID  string
+	ID               string `json:"id"`
+	CompanyID        string `json:"companyID"`
+	ClientID         string `json:"clientID"`
+	CompanyVehicleID string `json:"companyVehicleID"`
+	CompanyDriverID  string `json:"companyDriverID"`
 
 	// Company    Company
 	// Client     Client
-	// Vehicle    Vehicle
-	StartPoint Point
-	EndPoint   Point
+	Vehicle Vehicle `json:"vehicle"`
+	From    Point   `json:"from"`
+	To      Point   `json:"to"`
+	Name    string  `json:"name"`
+	Label   string  `json:"label"`
 	// Passengers []ClientPassenger
 }
 

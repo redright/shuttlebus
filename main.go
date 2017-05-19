@@ -5,6 +5,7 @@ import (
 )
 
 func main() {
+	go CreateNewClient()
 	APIHost.Setup()
 	// run := true
 	// var repo = new(db.PassengerRepo)
